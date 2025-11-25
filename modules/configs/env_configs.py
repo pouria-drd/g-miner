@@ -3,8 +3,9 @@ from pathlib import Path
 from datetime import time
 from dotenv import load_dotenv, find_dotenv
 
-
-load_dotenv(find_dotenv(filename=".env", usecwd=True))
+env_path = find_dotenv(filename=".env", usecwd=True)
+print(env_path)
+load_dotenv(dotenv_path=env_path, override=True)
 
 
 def parse_env_time(env_value: str, default: time) -> time:
