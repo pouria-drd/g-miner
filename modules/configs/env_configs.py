@@ -4,7 +4,7 @@ from datetime import time
 from dotenv import load_dotenv, find_dotenv
 
 
-load_dotenv(find_dotenv())
+load_dotenv(find_dotenv(filename=".env", usecwd=True))
 
 
 def parse_env_time(env_value: str, default: time) -> time:
