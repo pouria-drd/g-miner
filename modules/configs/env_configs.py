@@ -1,7 +1,10 @@
 import os
 from pathlib import Path
 from datetime import time
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
+
+
+load_dotenv(find_dotenv())
 
 
 def parse_env_time(env_value: str, default: time) -> time:
@@ -15,8 +18,6 @@ def parse_env_time(env_value: str, default: time) -> time:
     except Exception:
         return default
 
-
-load_dotenv()
 
 # ==== Scheduler Configs ====
 SCHEDULER_MINUTES = int(os.getenv("SCHEDULER_MINUTES", "5"))

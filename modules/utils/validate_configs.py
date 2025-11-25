@@ -1,6 +1,10 @@
 from modules.logger import logging
 
 from modules.configs import (
+    SCHEDULER_TIME_ZONE,
+    SCHEDULER_START_TIME,
+    SCHEDULER_END_TIME,
+    SCHEDULER_MINUTES,
     ADMIN_CHAT_IDS,
     TELEGRAM_TOKEN,
     TELEGRAM_PROXY_URL,
@@ -19,6 +23,10 @@ def validate_configs() -> bool:
 
     # Map required variables to their imported values
     required_configs = {
+        "SCHEDULER_TIME_ZONE": SCHEDULER_TIME_ZONE,
+        "SCHEDULER_START_TIME": SCHEDULER_START_TIME,
+        "SCHEDULER_END_TIME": SCHEDULER_END_TIME,
+        "SCHEDULER_MINUTES": SCHEDULER_MINUTES,
         "ADMIN_CHAT_IDS": ADMIN_CHAT_IDS,
         "TELEGRAM_TOKEN": TELEGRAM_TOKEN,
         "TELEGRAM_CHANNEL_ID": TELEGRAM_CHANNEL_ID,
