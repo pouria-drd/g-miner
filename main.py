@@ -1,7 +1,12 @@
 import sys
 from modules.logger import logging
 from modules.bots import TelegramBot
-from modules.configs import TELEGRAM_TOKEN, TELEGRAM_PROXY_URL, TELEGRAM_CHANNEL_ID
+from modules.configs import (
+    ADMIN_CHAT_IDS,
+    TELEGRAM_TOKEN,
+    TELEGRAM_PROXY_URL,
+    TELEGRAM_CHANNEL_ID,
+)
 
 logger = logging.getLogger("g-miner")
 
@@ -14,6 +19,7 @@ def validate_configs() -> bool:
 
     # Map required variables to their imported values
     required_configs = {
+        "ADMIN_CHAT_IDS": ADMIN_CHAT_IDS,
         "TELEGRAM_TOKEN": TELEGRAM_TOKEN,
         "TELEGRAM_CHANNEL_ID": TELEGRAM_CHANNEL_ID,
         # TELEGRAM_PROXY_URL is optional, so it's not listed here for strict validation
@@ -50,7 +56,7 @@ def main():
 
         # Initialize and run the Telegram Bot
         # TELEGRAM_PROXY_URL is correctly passed as an Optional parameter
-        telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, proxy=TELEGRAM_PROXY_URL)  # type: ignore
+        telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, proxy=TELEGRAM_PROXY_URL, allowed_ids=ADMIN_CHAT_IDS)  # type: ignore
 
         logger.info("Bot architecture initialized. Starting polling loop...")
         telegram_bot.run()  # This is the blocking call that starts the bot

@@ -2,6 +2,8 @@ from logging import Logger
 from telegram import Update
 from telegram.ext import ContextTypes, Application, CommandHandler
 
+from .protected import protected
+
 
 class GeneralHandlers:
     """
@@ -11,6 +13,7 @@ class GeneralHandlers:
     def __init__(self, logger: Logger):
         self.logger = logger
 
+    @protected
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
         Handles the /start command.

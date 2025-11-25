@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+raw_ids = os.getenv("ADMIN_CHAT_IDs", "")
+ADMIN_CHAT_IDS = [str(x.strip()) for x in raw_ids.split(",") if x.strip()]
+
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_PROXY_URL = os.getenv("TELEGRAM_PROXY_URL")
 

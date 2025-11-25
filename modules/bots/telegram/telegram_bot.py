@@ -6,13 +6,14 @@ from .handlers import GeneralHandlers
 
 
 class TelegramBot:
-    def __init__(self, token: str, proxy: Optional[str] = None):
+    def __init__(self, token: str, proxy: Optional[str] = None, allowed_ids=None):
         # 1. Setup Logger
         self.logger = logging.getLogger("TelegramBot")
 
         # 2. Load Configs
         self.token = token
         self.proxy = proxy
+        self.allowed_ids = allowed_ids or set()
 
         # 3. Build Application
         builder = self.build()
