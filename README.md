@@ -62,7 +62,7 @@ The bot uses environment variables (typically loaded from a `.env` file) for all
 |-----------------------|-------------------------------------------------------|-------------------------------------------------|
 | `TELEGRAM_TOKEN`      | The unique token provided by BotFather.             | 75744725:AA...                                |
 | `TELEGRAM_CHANNEL_ID` | The ID of the Telegram channel (e.g., @mychannel).  | @mychannel                                |
-| `SCHEDULER_MINUTES`   | Frequency of scraping/sending updates in minutes.    | 1                                               |
+| `SCHEDULER_MINUTES`   | Frequency of scraping/sending updates in minutes.    | 5                                               |
 | `SCHEDULER_START_TIME`| Daily start time for scraping (HH:MM format).        | 11:00                                           |
 | `SCHEDULER_END_TIME`  | Daily end time for scraping (HH:MM format).          | 20:30                                           |
 | `SCHEDULER_TIME_ZONE` | Timezone to use for scheduling checks.              | Asia/Tehran                                     |
