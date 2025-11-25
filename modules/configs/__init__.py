@@ -1,5 +1,1 @@
-from .env_configs import (
-    LOG_LEVEL,
-    TELEGRAM_TOKEN,
-    TELEGRAM_PROXY_URL,
-)
+from .env_configs import TELEGRAM_TOKEN, TELEGRAM_PROXY_URL, TELEGRAM_CHANNEL_ID

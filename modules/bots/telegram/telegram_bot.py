@@ -17,10 +17,28 @@ class TelegramBot:
         # 3. Build Application
         builder = self.build()
         self.app = builder.build()
+        self.bot = self.app.bot
 
         # 4. Initialize Logic Classes
         # Inject the logger into handlers so they use the same system
         self.general_handlers = GeneralHandlers(self.logger)
+
+    def run(self):
+        """
+        Registers handlers and starts the polling loop.
+        """
+        try:
+            self.logger.info("Initializing Bot Architecture...")
+
+            # Register the handlers from our modular classes
+            self.general_handlers.register(self.app)
+
+            self.logger.info("Bot is starting polling...")
+            self.app.run_polling()
+
+        except Exception as e:
+            self.logger.error(f"Error running Telegram Bot: {e}")
+            raise e
 
     def build(self):
         """
@@ -47,19 +65,23 @@ class TelegramBot:
             self.logger.error(f"Error building Telegram Bot: {e}")
             raise e
 
-    def run(self):
+    async def send_channel_message(self, channel_id: str, text: str):
         """
-        Registers handlers and starts the polling loop.
+        Sends a message to a specific Telegram channel.
+
+        Args:
+            channel_id (str): The ID of the channel (e.g., @channelusername or -100123456789).
+            text (str): The message content to send.
         """
         try:
-            self.logger.info("Initializing Bot Architecture...")
+            # 1. Access the Bot object from the Application
+            bot = self.app.bot
 
-            # Register the handlers from our modular classes
-            self.general_handlers.register(self.app)
+            # 2. Call the send_message method
+            await bot.send_message(chat_id=channel_id, text=text)
 
-            self.logger.info("Bot is starting polling...")
-            self.app.run_polling()
+            self.logger.info(f"Successfully sent message to channel: {channel_id}")
 
         except Exception as e:
-            self.logger.error(f"Error running Telegram Bot: {e}")
+            self.logger.error(f"Error sending message to channel {channel_id}: {e}")
             raise e
