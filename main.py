@@ -1,6 +1,13 @@
 import sys
-
 import asyncio
+
+
+from dotenv import load_dotenv, find_dotenv
+
+
+load_dotenv(find_dotenv(filename=".env", usecwd=True))
+
+
 from modules.logger import logging
 from modules.bots import TelegramBot
 from modules.configs import ADMIN_CHAT_IDS, TELEGRAM_TOKEN, TELEGRAM_PROXY_URL
