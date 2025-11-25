@@ -8,7 +8,7 @@ from .handlers import GeneralHandlers
 class TelegramBot:
     def __init__(self, token: str, proxy: Optional[str] = None):
         # 1. Setup Logger
-        self.logger = logging.getLogger("telegram-bot")
+        self.logger = logging.getLogger("TelegramBot")
 
         # 2. Load Configs
         self.token = token
