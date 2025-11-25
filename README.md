@@ -66,7 +66,7 @@ The bot uses environment variables (typically loaded from a `.env` file) for all
 | `SCHEDULER_START_TIME`| Daily start time for scraping (HH:MM format).        | 11:00                                           |
 | `SCHEDULER_END_TIME`  | Daily end time for scraping (HH:MM format).          | 20:30                                           |
 | `SCHEDULER_TIME_ZONE` | Timezone to use for scheduling checks.              | Asia/Tehran                                     |
-| `ADMIN_CHAT_IDS`      | Comma-separated list of authorized user IDs.        | 757845875785,546656052                             |
+| `ADMIN_CHAT_IDS`      | Comma-separated list of authorized user IDs.        | 78557,85875                             |
 | `TELEGRAM_PROXY_URL`  | (Optional) Proxy URL if required for Telegram.       | socks5://....   |
 
 ### 4. Running the Bot
