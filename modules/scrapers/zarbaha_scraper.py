@@ -100,8 +100,8 @@ class ZarbahaScraper:
 
         # Compute buy/sell prices using the business rules (fixed offsets)
         return {
-            "sell_price_toman": estimate_price - self.SELL_PRICE_RATE,
-            "buy_price_toman": estimate_price + self.BUY_PRICE_RATE,
+            "sell_price_toman": estimate_price + self.BUY_PRICE_RATE,
+            "buy_price_toman": estimate_price - self.SELL_PRICE_RATE,
             "estimate_price_toman": estimate_price,
         }
 

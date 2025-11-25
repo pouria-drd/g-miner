@@ -79,7 +79,7 @@ class TelegramBot:
             bot = self.app.bot
 
             # 2. Call the send_message method
-            await bot.send_message(chat_id=channel_id, text=text)
+            await bot.send_message(chat_id=channel_id, text=text, parse_mode="HTML")
 
             self.logger.info(f"Successfully sent message to channel: {channel_id}")
 

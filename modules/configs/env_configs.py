@@ -1,8 +1,32 @@
 import os
 from pathlib import Path
+from datetime import time
 from dotenv import load_dotenv
 
+
+def parse_env_time(env_value: str, default: time) -> time:
+    """
+    Convert a string like 'HH:MM' to a datetime.time object.
+    If parsing fails, return default.
+    """
+    try:
+        hours, minutes = map(int, env_value.split(":"))
+        return time(hours, minutes)
+    except Exception:
+        return default
+
+
 load_dotenv()
+
+# ==== Scheduler Configs ====
+SCHEDULER_MINUTES = int(os.getenv("SCHEDULER_MINUTES", "5"))
+SCHEDULER_START_TIME = parse_env_time(
+    os.getenv("SCHEDULER_START_TIME", "11:00"), time(11, 0)
+)
+SCHEDULER_END_TIME = parse_env_time(
+    os.getenv("SCHEDULER_END_TIME", "20:30"), time(20, 30)
+)
+SCHEDULER_TIME_ZONE = os.getenv("SCHEDULER_TIME_ZONE", "Asia/Tehran")
 
 # ==== Telegram Bot Configs ====
 raw_ids = os.getenv("ADMIN_CHAT_IDs", "")
