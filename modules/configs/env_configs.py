@@ -1,11 +1,9 @@
 import os
 from pathlib import Path
 from datetime import time
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 
-env_path = find_dotenv(filename=".env", usecwd=True)
-print(env_path)
-load_dotenv(dotenv_path=env_path, override=True)
+load_dotenv()
 
 
 def parse_env_time(env_value: str, default: time) -> time:
@@ -31,7 +29,7 @@ SCHEDULER_END_TIME = parse_env_time(
 SCHEDULER_TIME_ZONE = os.getenv("SCHEDULER_TIME_ZONE", "Asia/Tehran")
 
 # ==== Telegram Bot Configs ====
-raw_ids = os.getenv("ADMIN_CHAT_IDs", "")
+raw_ids = os.getenv("ADMIN_CHAT_IDS", "")
 ADMIN_CHAT_IDS = [str(x.strip()) for x in raw_ids.split(",") if x.strip()]
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
