@@ -31,8 +31,8 @@ class PriceService:
             self.logger.error(f"Error in fetch_and_store: {e}")
             return None
 
-        finally:
-            self.scraper.close()
+        # finally:
+        #     self.scraper.close()
 
     def get_latest_price(self):
         """Retrieve the most recent stored price."""

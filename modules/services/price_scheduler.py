@@ -1,7 +1,7 @@
 import asyncio
 import jdatetime
 from zoneinfo import ZoneInfo
-from datetime import datetime, time
+from datetime import datetime
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 

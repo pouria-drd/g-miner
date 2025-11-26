@@ -114,6 +114,8 @@ class ZarbahaScraper:
         """
         if hasattr(self, "driver") and self.driver:
             self.driver.quit()
+            # self.driver = None
+            self.logger.info("WebDriver closed")
 
     # ----------------- Driver Setup ----------------- #
     def _configure_options(self) -> webdriver.ChromeOptions:
@@ -134,6 +136,9 @@ class ZarbahaScraper:
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
 
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--blink-settings=imagesEnabled=false")
+
         return options
 
     def _init_driver(self, options: webdriver.ChromeOptions):
@@ -146,17 +151,13 @@ class ZarbahaScraper:
         Raises:
             WebDriverException: If ChromeDriver fails to start.
         """
-        # try:
-        #     self.driver = webdriver.Chrome(
-        #         service=Service(ChromeDriverManager().install()), options=options
-        #     )
-        # except WebDriverException as e:
-        #     self.logger.error(f"Failed to start Chrome WebDriver: {e}")
-        #     raise
         try:
-            self.driver = webdriver.Chrome(
-                service=Service("/usr/local/bin/chromedriver"), options=options
-            )
+            # Prefer ChromeDriverManager to ensure version compatibility
+            service = Service(ChromeDriverManager().install())
+            # If you must use hardcoded path, uncomment below and comment above:
+            # service = Service("/usr/local/bin/chromedriver")
+
+            self.driver = webdriver.Chrome(service=service, options=options)
         except WebDriverException as e:
             self.logger.error(f"Failed to start Chrome WebDriver: {e}")
             raise
