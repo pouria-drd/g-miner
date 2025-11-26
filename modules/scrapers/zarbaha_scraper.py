@@ -146,9 +146,16 @@ class ZarbahaScraper:
         Raises:
             WebDriverException: If ChromeDriver fails to start.
         """
+        # try:
+        #     self.driver = webdriver.Chrome(
+        #         service=Service(ChromeDriverManager().install()), options=options
+        #     )
+        # except WebDriverException as e:
+        #     self.logger.error(f"Failed to start Chrome WebDriver: {e}")
+        #     raise
         try:
             self.driver = webdriver.Chrome(
-                service=Service(ChromeDriverManager().install()), options=options
+                service=Service("/usr/local/bin/chromedriver"), options=options
             )
         except WebDriverException as e:
             self.logger.error(f"Failed to start Chrome WebDriver: {e}")
