@@ -38,10 +38,10 @@ class ZarbahaScraper:
     # Balanced between speed and CPU usage.
 
     BUY_PRICE_RATE: int = 50_000
-    # usecase: Business rule (site-specific): buy price = estimate + BUY_PRICE_RATE.
+    # usecase: Business rule (site-specific): buy price = estimate - BUY_PRICE_RATE.
 
-    SELL_PRICE_RATE: int = 30_000
-    # usecase: Business rule (site-specific): sell price = estimate - SELL_PRICE_RATE.
+    SELL_PRICE_RATE: int = 130_000
+    # usecase: Business rule (site-specific): sell price = estimate + SELL_PRICE_RATE.
 
     URL: str = "https://zarbaha-co.ir/"
     # usecase: Target website for scraping. Change here if website address changes.
@@ -100,8 +100,8 @@ class ZarbahaScraper:
 
         # Compute buy/sell prices using the business rules (fixed offsets)
         return {
-            "sell_price_toman": estimate_price + self.BUY_PRICE_RATE,
-            "buy_price_toman": estimate_price - self.SELL_PRICE_RATE,
+            "sell_price_toman": estimate_price + self.SELL_PRICE_RATE,
+            "buy_price_toman": estimate_price - self.BUY_PRICE_RATE,
             "estimate_price_toman": estimate_price,
         }
 
