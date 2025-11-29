@@ -45,19 +45,22 @@ class PriceRepository:
 
     def create(self, price_data: Dict[str, Optional[int]]):
         """
-        Add a new price entry with a timestamp and unique UUID.
-
-        Args:
-            price_data (Dict[str, Optional[int]]): Dictionary of prices.
+        Add a new price entry with a timestamp and unique UUID,
+        but keep ONLY the last 3 records in the file.
         """
         db = self._read()
+
         entry = {
-            "id": str(uuid.uuid4()),  # Unique identifier
-            "timestamp": self.timestamp_func(),  # Timestamp string
+            "id": str(uuid.uuid4()),
+            "timestamp": self.timestamp_func(),
             **price_data,
         }
+
         db.append(entry)
+        db = db[-3:]
+
         self._write(db)
+
 
     def get_latest(self) -> Optional[Dict[str, Optional[int]]]:
         """Return the latest price entry."""
@@ -69,3 +72,4 @@ class PriceRepository:
     def get_all(self) -> List[Dict[str, Optional[int]]]:
         """Return all stored price entries."""
         return self._read()
+    
