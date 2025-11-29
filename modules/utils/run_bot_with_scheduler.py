@@ -29,7 +29,7 @@ async def run_bot_with_scheduler(telegram_bot: TelegramBot):
 
         # Create a task for the bot polling
         # Note: We need to run the bot's polling loop in the async context
-        bot_task = asyncio.create_task(run_telegram_bot(telegram_bot))
+        bot_task = asyncio.create_task(run_telegram_bot(telegram_bot))  # type: ignore
 
         # Wait for the bot task (it will run indefinitely until interrupted)
         await bot_task

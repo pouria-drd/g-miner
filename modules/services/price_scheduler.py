@@ -20,7 +20,7 @@ class PriceScheduler:
     Scheduler service to fetch prices and send to Telegram channel.
     Runs every x minutes between start and end times of given timezone for a single day.
     """
-    MESAQAL_TO_GRAM = 4.608  # هر مثقال چند گرم است؟
+
     MINUTES = SCHEDULER_MINUTES  # every x minutes
     TIME_ZONE = ZoneInfo(SCHEDULER_TIME_ZONE)
     # Define working hours
@@ -64,13 +64,15 @@ class PriceScheduler:
                     # Try to get the previous stored price (one before latest)
                     try:
                         # repository stores entries in a file; get all and pick second-last
-                        all_entries = await asyncio.to_thread(self.price_service.repo.get_all)
+                        all_entries = await asyncio.to_thread(
+                            self.price_service.repo.get_all
+                        )
                         prev = all_entries[-2] if len(all_entries) >= 2 else None
                     except Exception:
                         prev = None
 
                     # Format message with direction icon based on estimate_price_toman
-                    message = self.format_message(latest, previous=prev)
+                    message = self.price_service.format_message(latest, previous=prev)
 
                     # Send to channel
                     await self.telegram_bot.send_channel_message(
@@ -85,67 +87,6 @@ class PriceScheduler:
 
         except Exception as e:
             self.logger.error(f"Error in fetch_and_send: {e}", exc_info=True)
-
-    def format_message(self, price_data: dict, previous: dict | None = None) -> str:
-        """Format the price data into an HTML message for Telegram.
-
-        Shows an icon at the top: green (up) if estimate rose since previous entry,
-        red (down) if fell, yellow when unchanged or unknown.
-        """
-        ts = price_data.get("timestamp")
-        buy_mesqal = price_data.get("buy_price_toman")
-        sell_mesqal = price_data.get("sell_price_toman")
-        estimate_mesqal = price_data.get("estimate_price_toman")
-
-        # Convert timestamp to Persian datetime
-        if ts:
-            dt = datetime.fromisoformat(ts).astimezone(self.TIME_ZONE)
-            persian_dt = jdatetime.datetime.fromgregorian(datetime=dt)
-            formatted_ts = persian_dt.strftime("%Y/%m/%d - %H:%M:%S")
-        else:
-            formatted_ts = "N/A"
-
-        def format_price(p):
-            return f"{p:,} تومان" if p is not None else "N/A"
-
-        def calc_per_gram(price_mesqal):
-            if price_mesqal is None:
-                return None
-            per_gram = price_mesqal / self.MESAQAL_TO_GRAM
-            return round(per_gram)
-
-        buy_per_gram = calc_per_gram(buy_mesqal)
-        sell_per_gram = calc_per_gram(sell_mesqal)
-
-        # Determine direction icon
-        direction_icon = "🟡"
-        try:
-            if previous and previous.get("estimate_price_toman") is not None and estimate_mesqal is not None:
-                prev_est = previous.get("estimate_price_toman")
-                if estimate_mesqal > prev_est:
-                    direction_icon = "🟢"
-                elif estimate_mesqal < prev_est:
-                    direction_icon = "🔴"
-                else:
-                    direction_icon = "⚪"
-            else:
-                # if we don't have previous or current estimate, keep neutral
-                direction_icon = "⚪"
-        except Exception:
-            direction_icon = "⚪"
-
-        message = (
-            f"{direction_icon} <b>گزارش لحظه‌ای قیمت طلا</b>\n\n"
-            f"💵 <b>خرید</b>\n"
-            f"• 🪙 <b>مظنه:</b> {format_price(buy_mesqal)}\n"
-            f"• ⚖️ <b>قیمت هر گرم:</b> {format_price(buy_per_gram)}\n\n"
-            f"💰 <b>فروش</b>\n"
-            f"• 🪙 <b>مظنه:</b> {format_price(sell_mesqal)}\n"
-            f"• ⚖️ <b>قیمت هر گرم:</b> {format_price(sell_per_gram)}\n\n"
-            f"⏱️ <b>تاریخ و زمان:</b> {formatted_ts}"
-        )
-
-        return message.strip()
 
     def start(self):
         """
