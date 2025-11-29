@@ -20,7 +20,7 @@ class PriceScheduler:
     Scheduler service to fetch prices and send to Telegram channel.
     Runs every x minutes between start and end times of given timezone for a single day.
     """
-
+    MESAQAL_TO_GRAM = 4.608  # هر مثقال چند گرم است؟
     MINUTES = SCHEDULER_MINUTES  # every x minutes
     TIME_ZONE = ZoneInfo(SCHEDULER_TIME_ZONE)
     # Define working hours
@@ -83,9 +83,8 @@ class PriceScheduler:
         Format the price data into an HTML message for Telegram.
         """
         ts = price_data.get("timestamp")
-        buy = price_data.get("buy_price_toman")
-        sell = price_data.get("sell_price_toman")
-        estimate = price_data.get("estimate_price_toman")
+        buy_mesqal = price_data.get("buy_price_toman")
+        sell_mesqal = price_data.get("sell_price_toman")
 
         # Convert timestamp to Persian datetime
         if ts:
@@ -98,13 +97,27 @@ class PriceScheduler:
         def format_price(p):
             return f"{p:,} تومان" if p is not None else "N/A"
 
+        def calc_per_gram(price_mesqal):
+            if price_mesqal is None:
+                return None
+            per_gram = price_mesqal / self.MESAQAL_TO_GRAM
+            return round(per_gram)
+
+        buy_per_gram = calc_per_gram(buy_mesqal)
+        sell_per_gram = calc_per_gram(sell_mesqal)
+
         # HTML message
         message = (
-            f"💰 <b>قیمت لحظه‌ای</b>\n\n"
-            f"🛒 <b>مظنه خرید:</b> {format_price(buy)}\n"
-            f"📦 <b>مظنه فروش:</b> {format_price(sell)}\n\n"
-            f"🕒 <b>تاریخ و زمان:</b> {formatted_ts}"
+        f"🟡 <b>گزارش لحظه‌ای قیمت طلا</b>\n\n"
+        f"💵 <b>خرید</b>\n"
+        f"• 🪙 <b>مظنه:</b> {format_price(buy_mesqal)}\n"
+        f"• ⚖️ <b>قیمت هر گرم:</b> {format_price(buy_per_gram)}\n\n"
+        f"💰 <b>فروش</b>\n"
+        f"• 🪙 <b>مظنه:</b> {format_price(sell_mesqal)}\n"
+        f"• ⚖️ <b>قیمت هر گرم:</b> {format_price(sell_per_gram)}\n\n"
+        f"⏱️ <b>تاریخ و زمان:</b> {formatted_ts}"
         )
+
         return message.strip()
 
     def start(self):
