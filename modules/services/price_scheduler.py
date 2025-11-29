@@ -127,12 +127,12 @@ class PriceScheduler:
                 elif estimate_mesqal < prev_est:
                     direction_icon = "🔴"
                 else:
-                    direction_icon = "🟡"
+                    direction_icon = "⚪"
             else:
                 # if we don't have previous or current estimate, keep neutral
-                direction_icon = "🟡"
+                direction_icon = "⚪"
         except Exception:
-            direction_icon = "🟡"
+            direction_icon = "⚪"
 
         message = (
             f"{direction_icon} <b>گزارش لحظه‌ای قیمت طلا</b>\n\n"
