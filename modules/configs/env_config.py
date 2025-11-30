@@ -2,87 +2,74 @@ import os
 from pathlib import Path
 from datetime import time
 from dotenv import load_dotenv
-from modules.logger import logging
-
-load_dotenv()
 
 
-logger = logging.getLogger("env_config")
+class EnvConfig:
+    """Central configuration manager with reloadable settings."""
+
+    def __init__(self, env_file: str = ".env"):
+        """
+        Load the .env file and initialize all config values.
+
+        Args:
+            env_file: Optional path to a specific .env file.
+        """
+        self.env_file = env_file
+        self.reload()
+
+    @staticmethod
+    def parse_env_time(env_value: str, default: time) -> time:
+        """Convert 'HH:MM' string to datetime.time. Fallback to default if invalid."""
+        try:
+            hours, minutes = map(int, env_value.split(":"))
+            return time(hours, minutes)
+        except Exception:
+            return default
+
+    def reload(self):
+        """Reload .env file and update all config values."""
+        if self.env_file:
+            load_dotenv(self.env_file, override=True)
+        else:
+            load_dotenv(override=True)
+
+        # Scheduler
+        self.SCHEDULER_ENABLED = (
+            os.getenv("SCHEDULER_ENABLED", "True").lower() == "true"
+        )
+        self.SCHEDULER_INTERVAL_MINUTES = int(
+            os.getenv("SCHEDULER_INTERVAL_MINUTES", "5")
+        )
+        self.SCHEDULER_START_TIME = self.parse_env_time(
+            os.getenv("SCHEDULER_START_TIME", "11:00"), time(11, 0)
+        )
+        self.SCHEDULER_END_TIME = self.parse_env_time(
+            os.getenv("SCHEDULER_END_TIME", "20:30"), time(20, 30)
+        )
+        self.SCHEDULER_TIME_ZONE = os.getenv("SCHEDULER_TIME_ZONE", "Asia/Tehran")
+
+        # Telegram Bot
+        self.ADMIN_CHAT_IDS = [
+            x.strip() for x in os.getenv("ADMIN_CHAT_IDS", "").split(",") if x.strip()
+        ]
+        self.TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+        self.TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
+        self.TELEGRAM_PROXY_URL = os.getenv("TELEGRAM_PROXY_URL")
+
+        # Database
+        self.DB_FOLDER: Path = Path("db")
+        self.DB_FOLDER.mkdir(exist_ok=True)
+        self.DB_FILE: Path = self.DB_FOLDER / "gold_prices.json"
 
 
-def parse_env_time(env_value: str, default: time) -> time:
-    """
-    Convert a string like 'HH:MM' to a datetime.time object.
-    If parsing fails, return default.
-    """
-    try:
-        hours, minutes = map(int, env_value.split(":"))
-        return time(hours, minutes)
-    except Exception:
-        return default
+"""
+# Usage
+CONFIG = EnvConfig()
 
+# Access values
+print(CONFIG.SCHEDULER_ENABLED)
+print(CONFIG.SCHEDULER_START_TIME)
 
-# ---------------------------------------------------------------
-# Scheduler Configuration
-# ---------------------------------------------------------------
-SCHEDULER_ENABLED = os.getenv("SCHEDULER_ENABLED", "True").lower() == "true"
-
-SCHEDULER_INTERVAL_MINUTES = int(os.getenv("SCHEDULER_INTERVAL_MINUTES", "5"))
-
-SCHEDULER_START_TIME = parse_env_time(
-    os.getenv("SCHEDULER_START_TIME", "11:00"), time(11, 0)
-)
-
-SCHEDULER_END_TIME = parse_env_time(
-    os.getenv("SCHEDULER_END_TIME", "20:30"), time(20, 30)
-)
-
-SCHEDULER_TIME_ZONE = os.getenv("SCHEDULER_TIME_ZONE", "Asia/Tehran")
-
-# ---------------------------------------------------------------
-# Telegram Bot Configuration
-# ---------------------------------------------------------------
-ADMIN_CHAT_IDS = [
-    str(x.strip()) for x in os.getenv("ADMIN_CHAT_IDS", "").split(",") if x.strip()
-]
-
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-
-TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
-# Replace with your channel's @username (e.g., @MyAwesomeChannel)
-# If the channel is private, use the numerical ID format:
-# CHANNEL_ID = -100123456789
-
-TELEGRAM_PROXY_URL = os.getenv("TELEGRAM_PROXY_URL")
-
-# ---------------------------------------------------------------
-# Database Configuration
-# ---------------------------------------------------------------
-DB_FOLDER = Path("db")
-DB_FOLDER.mkdir(exist_ok=True)
-DB_FILE = DB_FOLDER / "gold_prices.json"
-
-
-def check_required_configs() -> bool:
-    """
-    Checks for the existence of critical configuration values.
-    Returns True if all required configs are present, False otherwise.
-    """
-
-    # Map required variables to their imported values
-    required_configs = {
-        "ADMIN_CHAT_IDS": ADMIN_CHAT_IDS,
-        "TELEGRAM_TOKEN": TELEGRAM_TOKEN,
-        "TELEGRAM_CHANNEL_ID": TELEGRAM_CHANNEL_ID,
-    }
-
-    is_valid = True
-
-    for key, value in required_configs.items():
-        if not value:
-            logger.error(
-                f"FATAL: Missing required configuration value for {key}. Please set it in the environment or config file."
-            )
-            is_valid = False
-
-    return is_valid
+# Reload at runtime if .env changes
+CONFIG.reload()
+"""

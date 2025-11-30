@@ -4,8 +4,6 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Callable
 
-from modules.configs import DB_FILE
-
 
 class PriceRepository:
     """
@@ -15,7 +13,7 @@ class PriceRepository:
 
     def __init__(
         self,
-        db_file: Path = DB_FILE,
+        db_file: Path,
         timestamp_func: Callable[[], str] = lambda: datetime.now(
             timezone.utc
         ).isoformat(timespec="seconds"),
@@ -61,7 +59,6 @@ class PriceRepository:
 
         self._write(db)
 
-
     def get_latest(self) -> Optional[Dict[str, Optional[int]]]:
         """Return the latest price entry."""
         db = self._read()
@@ -72,4 +69,3 @@ class PriceRepository:
     def get_all(self) -> List[Dict[str, Optional[int]]]:
         """Return all stored price entries."""
         return self._read()
-    

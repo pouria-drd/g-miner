@@ -1,10 +1,7 @@
 import asyncio
-from modules.logger import logging
 from modules.bots import TelegramBot
 from modules.services import PriceScheduler
 from modules.configs import TELEGRAM_CHANNEL_ID
-
-logger = logging.getLogger(__name__)
 
 
 async def run_bot_with_scheduler(telegram_bot: TelegramBot):

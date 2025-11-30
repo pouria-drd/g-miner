@@ -1,7 +1,7 @@
 import re
 import time
 from typing import Dict
-from modules.logger import logging
+from modules.configs import get_logger
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -53,8 +53,7 @@ class ZarbahaScraper:
         Args:
             headless (bool): Run Chrome in headless mode. Useful for servers and background tasks.
         """
-        self.logger = logging.getLogger("ZarbahaScraper")
-        self.logger.info("Initializing ZarbahaScraper...")
+        self.logger = get_logger("ZarbahaScraper")
 
         self.headless = headless
 

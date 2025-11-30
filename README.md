@@ -1,38 +1,38 @@
 # ⛏️ g-miner: Gold Price Scraper Telegram Bot
 
-**g-miner** is a Python-based Telegram bot designed to automatically scrape the latest gold price data from a specified external website, persist this information, and broadcast updates to a designated Telegram channel within specific operating hours.
+**g-miner** is a Python-based Telegram bot that automatically scrapes the latest gold price data from a target website, stores it locally, and broadcasts updates to a specified Telegram channel according to a configurable schedule.
 
 ---
 
 ## 🌟 Features
 
-- **Gold Price Scraping:** Uses Selenium to reliably extract live gold price estimates from the target website ([https://zarbaha-co.ir/](https://zarbaha-co.ir/)).
-- **Highly Configurable Scheduling:** Uses environment variables to precisely control the scraping frequency, start time, end time, and timezone.
-- **Data Persistence:** Uses a local JSON file (following the Repository pattern) to store historical price records and retrieve the latest saved data.
-- **Telegram Integration:** Sends formatted, real-time gold price updates directly to a configured Telegram channel.
-- **Modular Architecture:** Structured with clear separation of concerns (Scraper, Repository, and Service layers) for maintainability.
+- **Gold Price Scraping:** Extracts live gold price data reliably from [zarbaha-co.ir](https://zarbaha-co.ir/) using Selenium and BeautifulSoup.
+- **Flexible Scheduling:** Configure scraping frequency, start/end times, and timezone via environment variables.
+- **Data Persistence:** Stores historical price records in a local JSON file using a Repository pattern.
+- **Telegram Integration:** Sends real-time, formatted gold price updates directly to a Telegram channel.
+- **Modular Architecture:** Clear separation of concerns with Scraper, Repository, Service, and Bot layers for maintainability.
 
 ---
 
-## ⚙️ Core Technology
+## ⚙️ Technology Stack
 
-- **Language:** Python  
-- **Bot Framework:** python-telegram-bot  
-- **Web Scraping:** Selenium and webdriver-manager and beautifulsoup4
-- **Database:** JSON file
-- **Scheduling:** APScheduler
-- **Target Site:** [https://zarbaha-co.ir/](https://zarbaha-co.ir/)  
+- **Language:** Python 3.9+  
+- **Bot Framework:** `python-telegram-bot`  
+- **Web Scraping:** Selenium, webdriver-manager, BeautifulSoup4  
+- **Data Storage:** JSON file  
+- **Scheduling:** APScheduler  
+- **Target Website:** [https://zarbaha-co.ir/](https://zarbaha-co.ir/)  
 
 ---
 
-## 🚀 Setup and Installation
+## 🚀 Setup & Installation
 
 ### Prerequisites
 
-- Python 3.9+  
-- A Telegram Bot Token (from BotFather)  
-- A Telegram Channel ID (where the prices will be posted)  
-- Chrome browser installed (required for Selenium)  
+- Python 3.9+ installed  
+- Telegram Bot Token (via BotFather)  
+- Telegram Channel ID to post updates  
+- Chrome browser (for Selenium)
 
 ### 1. Clone the Repository
 
@@ -46,62 +46,57 @@ cd g-miner
 ```bash
 # Create and activate a virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows, use: .venv\Scripts\activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install all required Python packages
+# Install required packages
 pip install -r requirements.txt
 ```
 
-> Note: Ensure your `requirements.txt` includes: `python-telegram-bot`, `selenium`, `webdriver-manager`, `python-dotenv`, etc.
+> Make sure `requirements.txt` includes: `python-telegram-bot`, `selenium`, `webdriver-manager`, `beautifulsoup4`, `python-dotenv`, `apscheduler`.
 
-### 3. Set Up Environment Variables:
+### 3. Configure Environment Variables
 
-    Create a `.env` file in the project root and add the following:
+Create a `.env` file in the project root:
 
-    ```ini
-    # ---------------------------------------------------------------
-    # Scheduler Configuration
-    # ---------------------------------------------------------------
-    SCHEDULER_END_TIME="20:30"
-    SCHEDULER_START_TIME="11:00"
-    SCHEDULER_INTERVAL_MINUTES="5"
-    SCHEDULER_TIME_ZONE="Asia/Tehran"
+```ini
+# -------------------------
+# Scheduler Configuration
+# -------------------------
+SCHEDULER_START_TIME="11:00"
+SCHEDULER_END_TIME="20:30"
+SCHEDULER_INTERVAL_MINUTES="5"
+SCHEDULER_TIME_ZONE="Asia/Tehran"
 
-    # ---------------------------------------------------------------
-    # Telegram Configuration
-    # ---------------------------------------------------------------
-    TELEGRAM_TOKEN="your-telegram-bot-token (from BotFather)"
-    ADMIN_CHAT_IDS="your-admin-chat-id(s) (e.g., 78557,85875)"
-    TELEGRAM_CHANNEL_ID="your-channel-id(e.g., @mychannel, or -100123456789)"
-    
-    TELEGRAM_PROXY_URL="your-proxy-url (optional) (e.g., socks5://....)"
+# -------------------------
+# Telegram Configuration
+# -------------------------
+TELEGRAM_TOKEN="your-telegram-bot-token"
+ADMIN_CHAT_IDS="your-admin-chat-ids (comma-separated)"
+TELEGRAM_CHANNEL_ID="your-channel-id (e.g., @mychannel or -100123456789)"
+TELEGRAM_PROXY_URL="optional-proxy-url (e.g., socks5://...)"
+```
 
-    ```
-### 4. Running the Bot
-
-Start the main application script (e.g., `main.py`):
+### 4. Run the Bot
 
 ```bash
 python main.py
 ```
 
-The bot will run the price scraping job according to the configured schedule.
+The bot will automatically start scraping and sending gold price updates according to the schedule.
 
 ---
 
 ## 🧩 Architecture Overview
 
-The application follows a clear separation of concerns:
-
-- **Scraper** (e.g., `zarbaha_scraper.py`): Responsible for browser control (Selenium) and raw data extraction.  
-- **Repository** (e.g., `db_repository.py`): Handles reading/writing structured data to the `db/prices.json` file.  
-- **Service** (e.g., `price_service.py`): Orchestrates the workflow: calls the Scraper, validates data, and saves it via the Repository.  
-- **Bot Entrypoint** (e.g., `telegram_bot.py`): Sets up the python-telegram-bot application, defines the scheduled job, and handles communication with Telegram.  
+- **Scraper (`zarbaha_scraper.py`)** – Controls the browser and extracts raw gold price data.  
+- **Repository (`db_repository.py`)** – Reads/writes structured data to `db/prices.json`.  
+- **Service (`price_service.py`)** – Orchestrates scraping, validation, and data persistence.  
+- **Bot Entrypoint (`telegram_bot.py`)** – Sets up Telegram communication, scheduling, and posting updates.
 
 ---
 
 ## 🤝 Contributing
 
-This project is open for contributions.  
+Contributions are welcome! Please fork the repository and submit pull requests.  
 
-GitHub Repository: [https://github.com/pouria-drd/g-miner](https://github.com/pouria-drd/g-miner)
+GitHub: [https://github.com/pouria-drd/g-miner](https://github.com/pouria-drd/g-miner)

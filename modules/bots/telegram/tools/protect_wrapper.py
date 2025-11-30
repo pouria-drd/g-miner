@@ -1,11 +1,13 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from modules.configs import ADMIN_CHAT_IDS
+from modules.configs import EnvConfig
 
-from modules.logger import logging
+from modules.configs import get_logger
 
 
-logger = logging.getLogger("protect")
+logger = get_logger("TelegramBot")
+env_config = EnvConfig()
+ADMIN_CHAT_IDS = env_config.ADMIN_CHAT_IDS
 
 
 def protect(func):

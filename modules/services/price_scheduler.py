@@ -1,18 +1,13 @@
 import asyncio
-import jdatetime
 from zoneinfo import ZoneInfo
 from datetime import datetime
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from modules.logger import logging
-from modules.services.price_service import PriceService
-from modules.configs import (
-    SCHEDULER_INTERVAL_MINUTES,
-    SCHEDULER_TIME_ZONE,
-    SCHEDULER_END_TIME,
-    SCHEDULER_START_TIME,
-)
+from modules.bots import TelegramBot
+from modules.configs import EnvConfig
+from modules.configs import get_logger
+from modules.services import PriceService
 
 
 class PriceScheduler:
@@ -21,18 +16,21 @@ class PriceScheduler:
     Runs every x minutes between start and end times of given timezone for a single day.
     """
 
-    MINUTES = SCHEDULER_INTERVAL_MINUTES  # every x minutes
-    TIME_ZONE = ZoneInfo(SCHEDULER_TIME_ZONE)
-    # Define working hours
-    END_TIME = SCHEDULER_END_TIME
-    START_TIME = SCHEDULER_START_TIME
+    def __init__(self, env_config: EnvConfig, telegram_bot: TelegramBot):
+        self.logger = get_logger("PriceScheduler")
 
-    def __init__(self, telegram_bot, channel_id: str):
-        self.logger = logging.getLogger("PriceScheduler")
-        self.price_service = PriceService()
+        self.env_config = env_config
         self.telegram_bot = telegram_bot
-        self.channel_id = channel_id
+
+        self.TIME_ZONE = ZoneInfo(self.env_config.SCHEDULER_TIME_ZONE)
+
+        self.price_service = PriceService(self.env_config)
+
         self.scheduler = AsyncIOScheduler(timezone=self.TIME_ZONE)
+
+        self.END_TIME = self.env_config.SCHEDULER_END_TIME
+        self.START_TIME = self.env_config.SCHEDULER_START_TIME
+        self.INTERVAL_MINUTES = self.env_config.SCHEDULER_INTERVAL_MINUTES
 
     async def fetch_and_send(self):
         """
@@ -74,12 +72,18 @@ class PriceScheduler:
                     # Format message with direction icon based on estimate_price_toman
                     message = self.price_service.format_message(latest, previous=prev)
 
+                    channel_id = self.env_config.TELEGRAM_CHANNEL_ID
+                    if not channel_id:
+                        self.logger.error(
+                            "TELEGRAM_CHANNEL_ID is not set in .env file."
+                        )
+                        raise ValueError("TELEGRAM_CHANNEL_ID is not set in .env file.")
                     # Send to channel
                     await self.telegram_bot.send_channel_message(
-                        channel_id=self.channel_id, text=message
+                        channel_id=channel_id, text=message
                     )
 
-                    self.logger.info(f"Price update sent to channel: {self.channel_id}")
+                    self.logger.info(f"Price update sent to channel: {channel_id}")
                 else:
                     self.logger.warning("No latest price found in database")
             else:
@@ -97,15 +101,15 @@ class PriceScheduler:
             self.scheduler.add_job(
                 self.fetch_and_send,
                 trigger=CronTrigger(
-                    minute=f"*/{self.MINUTES}", timezone=self.TIME_ZONE
+                    minute=f"*/{self.INTERVAL_MINUTES}", timezone=self.TIME_ZONE
                 ),
                 id="price_fetch_job",
-                name=f"Fetch and send price every {self.MINUTES} minutes",
+                name=f"Fetch and send price every {self.INTERVAL_MINUTES} minutes",
                 replace_existing=True,
             )
 
             self.logger.info(
-                f"Scheduler started. Will fetch prices every {self.MINUTES} minutes (between {self.START_TIME} and {self.END_TIME} time) {self.TIME_ZONE}"
+                f"Scheduler started. Will fetch prices every {self.INTERVAL_MINUTES} minutes (between {self.START_TIME} and {self.END_TIME} time) {self.TIME_ZONE}"
             )
             self.scheduler.start()
 

@@ -2,11 +2,10 @@ import jdatetime
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from modules.logger import logging
+from modules.configs import EnvConfig
+from modules.configs import get_logger
 from modules.repositories import PriceRepository
 from modules.scrapers.zarbaha_scraper import ZarbahaScraper
-
-from modules.configs import SCHEDULER_TIME_ZONE
 
 
 class PriceService:
@@ -15,12 +14,15 @@ class PriceService:
     """
 
     MESAQAL_TO_GRAM = 4.331802  # هر مثقال چند گرم است؟
-    TIME_ZONE = ZoneInfo(SCHEDULER_TIME_ZONE)
 
-    def __init__(self):
-        self.logger = logging.getLogger("PriceService")
-        self.repo = PriceRepository()
+    def __init__(self, env_config: EnvConfig):
+        self.logger = get_logger("PriceService")
+        self.env_config = env_config
+
+        self.repo = PriceRepository(db_file=self.env_config.DB_FILE)
         self.scraper = ZarbahaScraper(headless=True)
+
+        self.TIME_ZONE = ZoneInfo(self.env_config.SCHEDULER_TIME_ZONE)
 
     def fetch_data(self):
         """

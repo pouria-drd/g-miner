@@ -2,14 +2,14 @@ import asyncio
 from typing import Optional
 from telegram.ext import Application
 
-from modules.logger import logging
+from modules.configs import get_logger
 from .handlers import GeneralHandlers
 
 
 class TelegramBot:
     def __init__(self, token: str, proxy: Optional[str] = None, allowed_ids=None):
         # 1. Setup Logger
-        self.logger = logging.getLogger("TelegramBot")
+        self.logger = get_logger("TelegramBot")
 
         # 2. Load Configs
         self.token = token
@@ -52,6 +52,22 @@ class TelegramBot:
         except Exception as e:
             self.logger.error(f"Error running Telegram Bot: {e}")
             raise e
+
+    async def stop(self):
+        """Stop the bot safely."""
+        if not self.app:
+            return
+
+        try:
+            if self.app.running:
+                self.logger.info("Stopping Telegram bot...")
+                await self.app.stop()
+                await self.app.shutdown()
+
+        except asyncio.CancelledError:
+            self.logger.info("Telegram bot stop cancelled due to task cancellation.")
+        except Exception as e:
+            self.logger.error(f"Error stopping Telegram Bot: {e}")
 
     def build(self):
         """
