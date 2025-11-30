@@ -10,7 +10,7 @@ env_config = EnvConfig()
 ADMIN_CHAT_IDS = env_config.ADMIN_CHAT_IDS
 
 
-def protect(func):
+def admin_only(func):
     """
     Decorator to allow only specific users to execute a handler.
     Replies with a warning if unauthorized.

@@ -1,0 +1,1 @@
+from .admin_only_wrapper import admin_only
