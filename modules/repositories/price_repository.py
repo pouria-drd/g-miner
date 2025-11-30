@@ -28,19 +28,6 @@ class PriceRepository:
         if not self.db_file.exists():
             self._write([])
 
-    def _read(self) -> List[Dict]:
-        """Read the JSON DB as a list of entries."""
-        try:
-            with self.db_file.open("r", encoding="utf-8") as f:
-                return json.load(f)
-        except json.JSONDecodeError:
-            return []
-
-    def _write(self, data: List[Dict]):
-        """Write list of entries to JSON DB."""
-        with self.db_file.open("w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-
     def create(self, price_data: Dict[str, Optional[int]]):
         """
         Add a new price entry with a timestamp and unique UUID,
@@ -69,3 +56,19 @@ class PriceRepository:
     def get_all(self) -> List[Dict[str, Optional[int]]]:
         """Return all stored price entries."""
         return self._read()
+
+
+    def _read(self) -> List[Dict]:
+        """Read the JSON DB as a list of entries."""
+        try:
+            with self.db_file.open("r", encoding="utf-8") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            return []
+
+    def _write(self, data: List[Dict]):
+        """Write list of entries to JSON DB."""
+        with self.db_file.open("w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+

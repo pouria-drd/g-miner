@@ -67,7 +67,7 @@ class ZarbahaScraper:
         self._open_website(self.URL)
 
     # ----------------- Public Method ----------------- #
-    def scrape_prices(self) -> Dict[str, int | None]:
+    def scrape(self) -> Dict[str, int | None]:
         """
         Extract and compute:
             - sell_price_toman

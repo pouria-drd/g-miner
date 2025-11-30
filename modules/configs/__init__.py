@@ -1,2 +1,2 @@
-from .env_config import EnvConfig
-from .log_config import get_logger
+from .settings import Settings
+from .logger import get_logger

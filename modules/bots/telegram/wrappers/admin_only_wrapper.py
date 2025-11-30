@@ -1,12 +1,12 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from modules.configs import EnvConfig
+from modules.configs import Settings
 
 from modules.configs import get_logger
 
 
 logger = get_logger("TelegramBot")
-env_config = EnvConfig()
+env_config = Settings()
 ADMIN_CHAT_IDS = env_config.ADMIN_CHAT_IDS
 
 

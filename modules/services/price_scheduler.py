@@ -5,7 +5,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from modules.bots import TelegramBot
-from modules.configs import EnvConfig
+from modules.configs import Settings
 from modules.configs import get_logger
 from modules.services import PriceService
 
@@ -16,7 +16,7 @@ class PriceScheduler:
     Runs every x minutes between start and end times of given timezone for a single day.
     """
 
-    def __init__(self, env_config: EnvConfig, telegram_bot: TelegramBot):
+    def __init__(self, env_config: Settings, telegram_bot: TelegramBot):
         self.logger = get_logger("PriceScheduler")
 
         self.env_config = env_config

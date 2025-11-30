@@ -2,7 +2,7 @@ import jdatetime
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from modules.configs import EnvConfig
+from modules.configs import Settings
 from modules.configs import get_logger
 from modules.repositories import PriceRepository
 from modules.scrapers.zarbaha_scraper import ZarbahaScraper
@@ -15,7 +15,7 @@ class PriceService:
 
     MESAQAL_TO_GRAM = 4.331802  # هر مثقال چند گرم است؟
 
-    def __init__(self, env_config: EnvConfig):
+    def __init__(self, env_config: Settings):
         self.logger = get_logger("PriceService")
         self.env_config = env_config
 
@@ -30,7 +30,7 @@ class PriceService:
         Returns the price dict.
         """
         try:
-            prices = self.scraper.scrape_prices()
+            prices = self.scraper.scrape()
             if prices["estimate_price_toman"] is not None:
                 self.repo.create(prices)
                 self.logger.info(f"Price stored: {prices}")

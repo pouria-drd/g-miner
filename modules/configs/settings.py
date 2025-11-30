@@ -4,27 +4,12 @@ from datetime import time
 from dotenv import load_dotenv
 
 
-class EnvConfig:
-    """Central configuration manager with reloadable settings."""
+class Settings:
+    """Central configuration manager with loadable settings."""
 
     def __init__(self, env_file: str = ".env"):
-        """
-        Load the .env file and initialize all config values.
-
-        Args:
-            env_file: Optional path to a specific .env file.
-        """
         self.env_file = env_file
         self.reload()
-
-    @staticmethod
-    def parse_env_time(env_value: str, default: time) -> time:
-        """Convert 'HH:MM' string to datetime.time. Fallback to default if invalid."""
-        try:
-            hours, minutes = map(int, env_value.split(":"))
-            return time(hours, minutes)
-        except Exception:
-            return default
 
     def reload(self):
         """Reload .env file and update all config values."""
@@ -60,6 +45,15 @@ class EnvConfig:
         self.DB_FOLDER: Path = Path("db")
         self.DB_FOLDER.mkdir(exist_ok=True)
         self.DB_FILE: Path = self.DB_FOLDER / "gold_prices.json"
+
+    @staticmethod
+    def parse_env_time(env_value: str, default: time) -> time:
+        """Convert 'HH:MM' string to datetime.time. Fallback to default if invalid."""
+        try:
+            hours, minutes = map(int, env_value.split(":"))
+            return time(hours, minutes)
+        except Exception:
+            return default
 
 
 """
