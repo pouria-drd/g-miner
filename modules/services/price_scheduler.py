@@ -8,7 +8,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from modules.logger import logging
 from modules.services.price_service import PriceService
 from modules.configs import (
-    SCHEDULER_MINUTES,
+    SCHEDULER_INTERVAL_MINUTES,
     SCHEDULER_TIME_ZONE,
     SCHEDULER_END_TIME,
     SCHEDULER_START_TIME,
@@ -21,7 +21,7 @@ class PriceScheduler:
     Runs every x minutes between start and end times of given timezone for a single day.
     """
 
-    MINUTES = SCHEDULER_MINUTES  # every x minutes
+    MINUTES = SCHEDULER_INTERVAL_MINUTES  # every x minutes
     TIME_ZONE = ZoneInfo(SCHEDULER_TIME_ZONE)
     # Define working hours
     END_TIME = SCHEDULER_END_TIME

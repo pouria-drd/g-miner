@@ -54,21 +54,30 @@ pip install -r requirements.txt
 
 > Note: Ensure your `requirements.txt` includes: `python-telegram-bot`, `selenium`, `webdriver-manager`, `python-dotenv`, etc.
 
-### 3. Configuration
+### 3. Set Up Environment Variables:
 
-The bot uses environment variables (typically loaded from a `.env` file) for all configurations:
+    Create a `.env` file in the project root and add the following:
 
-| Variable              | Description                                           | Example Value                                    |
-|-----------------------|-------------------------------------------------------|-------------------------------------------------|
-| `TELEGRAM_TOKEN`      | The unique token provided by BotFather.             | 75744725:AA...                                |
-| `TELEGRAM_CHANNEL_ID` | The ID of the Telegram channel (e.g., @mychannel).  | @mychannel                                |
-| `SCHEDULER_MINUTES`   | Frequency of scraping/sending updates in minutes.    | 5                                               |
-| `SCHEDULER_START_TIME`| Daily start time for scraping (HH:MM format).        | 11:00                                           |
-| `SCHEDULER_END_TIME`  | Daily end time for scraping (HH:MM format).          | 20:30                                           |
-| `SCHEDULER_TIME_ZONE` | Timezone to use for scheduling checks.              | Asia/Tehran                                     |
-| `ADMIN_CHAT_IDS`      | Comma-separated list of authorized user IDs.        | 78557,85875                             |
-| `TELEGRAM_PROXY_URL`  | (Optional) Proxy URL if required for Telegram.       | socks5://....   |
+    ```ini
+    # ---------------------------------------------------------------
+    # Scheduler Configuration
+    # ---------------------------------------------------------------
+    SCHEDULER_ENABLED="True"
+    SCHEDULER_END_TIME="20:30"
+    SCHEDULER_START_TIME="11:00"
+    SCHEDULER_INTERVAL_MINUTES="5"
+    SCHEDULER_TIME_ZONE="Asia/Tehran"
 
+    # ---------------------------------------------------------------
+    # Telegram Configuration
+    # ---------------------------------------------------------------
+    TELEGRAM_TOKEN="your-telegram-bot-token (from BotFather)"
+    ADMIN_CHAT_IDS="your-admin-chat-id(s) (e.g., 78557,85875)"
+    TELEGRAM_CHANNEL_ID="your-channel-id(e.g., @mychannel, or -100123456789)"
+    
+    TELEGRAM_PROXY_URL="your-proxy-url (optional) (e.g., socks5://....)"
+
+    ```
 ### 4. Running the Bot
 
 Start the main application script (e.g., `main.py`):

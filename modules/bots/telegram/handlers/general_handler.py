@@ -2,7 +2,7 @@ from logging import Logger
 from telegram import Update
 from telegram.ext import ContextTypes, Application, CommandHandler
 
-from .protected import protected
+from ..tools import protect
 
 
 class GeneralHandlers:
@@ -13,7 +13,7 @@ class GeneralHandlers:
     def __init__(self, logger: Logger):
         self.logger = logger
 
-    @protected
+    @protect
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
         Handles the /start command.
@@ -25,7 +25,10 @@ class GeneralHandlers:
         # Log the event
         self.logger.info(f"Handler Triggered: /start by {name}")
 
-        await update.message.reply_text(f"Greetings, {name}. System operational.")  # type: ignore
+        await update.message.reply_text(  # type: ignore
+            f"Greetings, {name}. System operational.",
+            reply_to_message_id=update.message.message_id,  # type: ignore
+        )
 
     def register(self, app: Application):
         """

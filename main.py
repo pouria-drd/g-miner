@@ -4,7 +4,8 @@ from modules.logger import logging
 from modules.bots import TelegramBot
 from modules.configs import ADMIN_CHAT_IDS, TELEGRAM_TOKEN, TELEGRAM_PROXY_URL
 
-from modules.utils import validate_configs, run_bot_with_scheduler
+from modules.utils import run_bot_with_scheduler
+from modules.configs import check_required_configs
 
 logger = logging.getLogger("g-miner")
 
@@ -17,7 +18,7 @@ def main():
 
     try:
         # Validate critical configurations before proceeding
-        if not validate_configs():
+        if not check_required_configs():
             # Exit cleanly if validation fails
             sys.exit(1)
 

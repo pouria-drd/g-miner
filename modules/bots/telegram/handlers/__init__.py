@@ -1,1 +1,1 @@
-from .general import GeneralHandlers
+from .general_handler import GeneralHandlers

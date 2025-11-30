@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 from telegram.ext import Application
 
@@ -24,7 +25,7 @@ class TelegramBot:
         # Inject the logger into handlers so they use the same system
         self.general_handlers = GeneralHandlers(self.logger)
 
-    def run(self):
+    async def run(self):
         """
         Registers handlers and starts the polling loop.
         """
@@ -35,7 +36,18 @@ class TelegramBot:
             self.general_handlers.register(self.app)
 
             self.logger.info("Bot is starting polling...")
-            self.app.run_polling()
+
+            # Initialize and start polling
+            await self.app.initialize()
+            await self.app.start()
+            await self.app.updater.start_polling()  # type: ignore
+
+            try:
+                await asyncio.Event().wait()
+            finally:
+                await telegram_bot.app.updater.stop()  # type: ignore
+                await self.app.stop()
+                await self.app.shutdown()
 
         except Exception as e:
             self.logger.error(f"Error running Telegram Bot: {e}")
@@ -66,7 +78,9 @@ class TelegramBot:
             self.logger.error(f"Error building Telegram Bot: {e}")
             raise e
 
-    async def send_channel_message(self, channel_id: str, text: str):
+    async def send_channel_message(
+        self, channel_id: str, text: str, parse_mode: str = "HTML"
+    ):
         """
         Sends a message to a specific Telegram channel.
 
@@ -79,7 +93,7 @@ class TelegramBot:
             bot = self.app.bot
 
             # 2. Call the send_message method
-            await bot.send_message(chat_id=channel_id, text=text, parse_mode="HTML")
+            await bot.send_message(chat_id=channel_id, text=text, parse_mode=parse_mode)
 
             self.logger.info(f"Successfully sent message to channel: {channel_id}")
 

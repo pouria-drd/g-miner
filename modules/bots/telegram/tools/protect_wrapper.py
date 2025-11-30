@@ -5,10 +5,10 @@ from modules.configs import ADMIN_CHAT_IDS
 from modules.logger import logging
 
 
-logger = logging.getLogger("protected")
+logger = logging.getLogger("protect")
 
 
-def protected(func):
+def protect(func):
     """
     Decorator to allow only specific users to execute a handler.
     Replies with a warning if unauthorized.
