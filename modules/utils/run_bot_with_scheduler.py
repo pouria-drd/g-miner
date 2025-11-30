@@ -3,7 +3,6 @@ from modules.logger import logging
 from modules.bots import TelegramBot
 from modules.services import PriceScheduler
 from modules.configs import TELEGRAM_CHANNEL_ID
-from .run_telegram_bot import run_telegram_bot
 
 logger = logging.getLogger(__name__)
 

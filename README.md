@@ -62,7 +62,6 @@ pip install -r requirements.txt
     # ---------------------------------------------------------------
     # Scheduler Configuration
     # ---------------------------------------------------------------
-    SCHEDULER_ENABLED="True"
     SCHEDULER_END_TIME="20:30"
     SCHEDULER_START_TIME="11:00"
     SCHEDULER_INTERVAL_MINUTES="5"

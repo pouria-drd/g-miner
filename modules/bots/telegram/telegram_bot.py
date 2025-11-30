@@ -45,7 +45,7 @@ class TelegramBot:
             try:
                 await asyncio.Event().wait()
             finally:
-                await telegram_bot.app.updater.stop()  # type: ignore
+                await self.app.updater.stop()  # type: ignore
                 await self.app.stop()
                 await self.app.shutdown()
 
