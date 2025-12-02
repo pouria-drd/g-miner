@@ -1,10 +1,8 @@
 import jdatetime
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
-from modules.configs import Settings
-from modules.configs import get_logger
 from modules.repositories import PriceRepository
+from modules.configs import get_settings, get_logger
 from modules.scrapers.zarbaha_scraper import ZarbahaScraper
 
 
@@ -13,16 +11,16 @@ class PriceService:
     Service layer for business logic around gold prices.
     """
 
-    MESAQAL_TO_GRAM = 4.331802  # هر مثقال چند گرم است؟
+    MESAQAL_TO_GRAM = 4.331802  # every mesqal is how many grams?
 
-    def __init__(self, env_config: Settings):
+    def __init__(self):
         self.logger = get_logger("PriceService")
-        self.env_config = env_config
+        self.settings = get_settings()
 
-        self.repo = PriceRepository(db_file=self.env_config.DB_FILE)
+        self.repo = PriceRepository(db_file=self.settings["DB_FILE"])
         self.scraper = ZarbahaScraper(headless=True)
 
-        self.TIME_ZONE = ZoneInfo(self.env_config.SCHEDULER_TIME_ZONE)
+        self.SCHEDULER_TIME_ZONE = self.settings["SCHEDULER_TIME_ZONE"]
 
     def fetch_data(self):
         """
@@ -62,7 +60,7 @@ class PriceService:
 
         # Convert timestamp to Persian datetime
         if ts:
-            dt = datetime.fromisoformat(ts).astimezone(self.TIME_ZONE)
+            dt = datetime.fromisoformat(ts).astimezone(self.SCHEDULER_TIME_ZONE)
             persian_dt = jdatetime.datetime.fromgregorian(datetime=dt)
             formatted_ts = persian_dt.strftime("%Y/%m/%d - %H:%M:%S")
         else:

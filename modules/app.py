@@ -3,15 +3,16 @@ import asyncio
 from typing import Optional
 
 from modules.bots import TelegramBot
-from modules.services import PriceScheduler
-from modules.configs import Settings, get_logger
+from modules.schedulers import PriceScheduler
+from modules.configs import get_settings, get_logger
+
 
 class GMinerApp:
     """Main GMiner application with bot, scheduler, reload, and restart support."""
 
-    def __init__(self, env_file: str = ".env"):
+    def __init__(self):
         self.logger = get_logger("GMiner")
-        self.env_config = Settings(env_file)
+        self.settings = get_settings()
 
         self.bot_task: Optional[asyncio.Task] = None
 
@@ -23,14 +24,14 @@ class GMinerApp:
         """Initialize Telegram bot instance."""
         self.logger.info("Initializing Telegram Bot...")
 
-        if not self.env_config.TELEGRAM_TOKEN:
+        if not self.settings["TELEGRAM_TOKEN"]:
             self.logger.error("TELEGRAM_TOKEN is not set in .env file.")
             raise ValueError("TELEGRAM_TOKEN is not set in .env file.")
 
         self.telegram_bot = TelegramBot(
-            token=self.env_config.TELEGRAM_TOKEN,
-            proxy=self.env_config.TELEGRAM_PROXY_URL,
-            allowed_ids=self.env_config.ADMIN_CHAT_IDS,
+            token=self.settings["TELEGRAM_TOKEN"],
+            proxy=self.settings["TELEGRAM_PROXY_URL"],
+            allowed_ids=self.settings["ADMIN_CHAT_IDS"],
         )
 
         self.logger.info("Telegram Bot initialized.")
@@ -42,13 +43,11 @@ class GMinerApp:
 
         self.logger.info("Initializing Price Scheduler...")
 
-        if not self.env_config.TELEGRAM_CHANNEL_ID:
+        if not self.settings["TELEGRAM_CHANNEL_ID"]:
             self.logger.error("TELEGRAM_CHANNEL_ID is not set in .env file.")
             raise ValueError("TELEGRAM_CHANNEL_ID is not set in .env file.")
 
-        self.scheduler = PriceScheduler(
-            env_config=self.env_config, telegram_bot=self.telegram_bot
-        )
+        self.scheduler = PriceScheduler(telegram_bot=self.telegram_bot)
 
         self.logger.info("Price Scheduler initialized.")
 
@@ -113,7 +112,7 @@ class GMinerApp:
     def reload_config(self):
         """Reload environment config at runtime."""
         self.logger.info("Reloading configuration...")
-        self.env_config.reload()
+        self.settings = get_settings()
         self.logger.info("Configuration reloaded.")
 
     async def restart(self):
@@ -139,4 +138,3 @@ class GMinerApp:
         except Exception as e:
             self.logger.error(f"Fatal error in GMiner: {e}", exc_info=True)
             sys.exit(1)
-

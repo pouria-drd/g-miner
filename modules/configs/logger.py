@@ -3,7 +3,13 @@ import colorlog
 import logging
 from logging.handlers import RotatingFileHandler
 
-LOG_DIR = "logs"
+from .settings import get_settings
+
+settings_data = get_settings()
+
+BASE_DIR = settings_data["BASE_DIR"]
+
+LOG_DIR = BASE_DIR / "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
 

@@ -1,13 +1,11 @@
 import asyncio
-from zoneinfo import ZoneInfo
 from datetime import datetime
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from modules.bots import TelegramBot
-from modules.configs import Settings
-from modules.configs import get_logger
 from modules.services import PriceService
+from modules.configs import get_settings, get_logger
 
 
 class PriceScheduler:
@@ -16,21 +14,22 @@ class PriceScheduler:
     Runs every x minutes between start and end times of given timezone for a single day.
     """
 
-    def __init__(self, env_config: Settings, telegram_bot: TelegramBot):
+    def __init__(self, telegram_bot: TelegramBot):
         self.logger = get_logger("PriceScheduler")
 
-        self.env_config = env_config
+        self.settings = get_settings()
         self.telegram_bot = telegram_bot
 
-        self.TIME_ZONE = ZoneInfo(self.env_config.SCHEDULER_TIME_ZONE)
+        self.SCHEDULER_TIME_ZONE = self.settings["SCHEDULER_TIME_ZONE"]
 
-        self.price_service = PriceService(self.env_config)
+        self.price_service = PriceService()
 
-        self.scheduler = AsyncIOScheduler(timezone=self.TIME_ZONE)
+        self.scheduler = AsyncIOScheduler(timezone=self.SCHEDULER_TIME_ZONE)
 
-        self.END_TIME = self.env_config.SCHEDULER_END_TIME
-        self.START_TIME = self.env_config.SCHEDULER_START_TIME
-        self.INTERVAL_MINUTES = self.env_config.SCHEDULER_INTERVAL_MINUTES
+        self.END_TIME = self.settings["SCHEDULER_END_TIME"]
+        self.START_TIME = self.settings["SCHEDULER_START_TIME"]
+
+        self.INTERVAL_MINUTES = int(self.settings["SCHEDULER_INTERVAL_MINUTES"])
 
     async def fetch_and_send(self):
         """
@@ -39,7 +38,7 @@ class PriceScheduler:
         """
         try:
             # Get current Tehran time
-            now = datetime.now(self.TIME_ZONE)
+            now = datetime.now(self.SCHEDULER_TIME_ZONE)
             current_time = now.time()
 
             # Check if within working hours
@@ -72,7 +71,7 @@ class PriceScheduler:
                     # Format message with direction icon based on estimate_price_toman
                     message = self.price_service.format_message(latest, previous=prev)
 
-                    channel_id = self.env_config.TELEGRAM_CHANNEL_ID
+                    channel_id = self.settings["TELEGRAM_CHANNEL_ID"]
                     if not channel_id:
                         self.logger.error(
                             "TELEGRAM_CHANNEL_ID is not set in .env file."
@@ -101,7 +100,8 @@ class PriceScheduler:
             self.scheduler.add_job(
                 self.fetch_and_send,
                 trigger=CronTrigger(
-                    minute=f"*/{self.INTERVAL_MINUTES}", timezone=self.TIME_ZONE
+                    minute=f"*/{self.INTERVAL_MINUTES}",
+                    timezone=self.SCHEDULER_TIME_ZONE,
                 ),
                 id="price_fetch_job",
                 name=f"Fetch and send price every {self.INTERVAL_MINUTES} minutes",
@@ -109,7 +109,7 @@ class PriceScheduler:
             )
 
             self.logger.info(
-                f"Scheduler started. Will fetch prices every {self.INTERVAL_MINUTES} minutes (between {self.START_TIME} and {self.END_TIME} time) {self.TIME_ZONE}"
+                f"Scheduler started. Will fetch prices every {self.INTERVAL_MINUTES} minutes (between {self.START_TIME} and {self.END_TIME} time) {self.SCHEDULER_TIME_ZONE}"
             )
             self.scheduler.start()
 

@@ -60,20 +60,38 @@ Create a `.env` file in the project root:
 
 ```ini
 # -------------------------
+# Telegram Configuration
+# -------------------------
+TELEGRAM_CHANNEL_ID="@my_channel"
+ADMIN_CHAT_IDS="your_account_id(189855...),another_account_id(123456...)"
+TELEGRAM_TOKEN="your_bot_token_from_botfather"
+TELEGRAM_PROXY_URL="socks5://username:password@domain:port"
+
+# -------------------------
 # Scheduler Configuration
 # -------------------------
-SCHEDULER_START_TIME="11:00"
+SCHEDULER_ENABLED="True"
 SCHEDULER_END_TIME="20:30"
+SCHEDULER_START_TIME="11:00"
 SCHEDULER_INTERVAL_MINUTES="5"
 SCHEDULER_TIME_ZONE="Asia/Tehran"
 
 # -------------------------
-# Telegram Configuration
+# Zarbaha Scraper Configuration
 # -------------------------
-TELEGRAM_TOKEN="your-telegram-bot-token"
-ADMIN_CHAT_IDS="your-admin-chat-ids (comma-separated)"
-TELEGRAM_CHANNEL_ID="your-channel-id (e.g., @mychannel or -100123456789)"
-TELEGRAM_PROXY_URL="optional-proxy-url (e.g., socks5://...)"
+ZARBAHA_TIMEOUT="20"
+ZARBAHA_INTERVAL="1"
+ZARBAHA_BUY_PRICE_RATE="50000"
+ZARBAHA_SELL_PRICE_RATE="130000"
+
+# -------------------------
+# Celery Configuration
+# -------------------------
+BROKER_URL="redis://localhost:6379/0"
+RESULT_BACKEND="redis://localhost:6379/1"
+```
+
+Replace the values with your own configurations.
 ```
 
 ### 4. Run the Bot

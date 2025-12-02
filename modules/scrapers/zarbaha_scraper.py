@@ -1,7 +1,7 @@
 import re
 import time
 from typing import Dict
-from modules.configs import get_logger
+from modules.configs import get_settings, get_logger
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -29,20 +29,6 @@ class ZarbahaScraper:
             scraper.close()
     """
 
-    TIME_OUT: int = 20
-    # usecase: Maximum wait time (in seconds) for stabilizing a dynamically-updated number.
-    # The website frequently updates prices with JavaScript, so waiting ensures accuracy.
-
-    INTERVAL: float = 0.75
-    # usecase: Delay between each check while waiting for the number to stabilize.
-    # Balanced between speed and CPU usage.
-
-    BUY_PRICE_RATE: int = 50_000
-    # usecase: Business rule (site-specific): buy price = estimate - BUY_PRICE_RATE.
-
-    SELL_PRICE_RATE: int = 130_000
-    # usecase: Business rule (site-specific): sell price = estimate + SELL_PRICE_RATE.
-
     URL: str = "https://zarbaha-co.ir/"
     # usecase: Target website for scraping. Change here if website address changes.
 
@@ -55,7 +41,23 @@ class ZarbahaScraper:
         """
         self.logger = get_logger("ZarbahaScraper")
 
+        self.settings = get_settings()
+
         self.headless = headless
+
+        # usecase: Maximum wait time (in seconds) for stabilizing a dynamically-updated number.
+        # The website frequently updates prices with JavaScript, so waiting ensures accuracy.
+        self.timeout = int(self.settings["ZARBAHA_TIMEOUT"])
+
+        # usecase: Delay between each check while waiting for the number to stabilize.
+        # Balanced between speed and CPU usage.
+        self.interval = float(self.settings["ZARBAHA_INTERVAL"])
+
+        # usecase: Business rule (site-specific): buy price = estimate - BUY_PRICE_RATE.
+        self.buy_price_rate = int(self.settings["ZARBAHA_BUY_PRICE_RATE"])
+
+        # usecase: Business rule (site-specific): sell price = estimate + SELL_PRICE_RATE.
+        self.sell_price_rate = int(self.settings["ZARBAHA_SELL_PRICE_RATE"])
 
         # Prepare Selenium options
         options = self._configure_options()
@@ -99,8 +101,8 @@ class ZarbahaScraper:
 
         # Compute buy/sell prices using the business rules (fixed offsets)
         return {
-            "sell_price_toman": estimate_price + self.SELL_PRICE_RATE,
-            "buy_price_toman": estimate_price - self.BUY_PRICE_RATE,
+            "sell_price_toman": estimate_price + self.sell_price_rate,
+            "buy_price_toman": estimate_price - self.buy_price_rate,
             "estimate_price_toman": estimate_price,
         }
 
@@ -192,9 +194,9 @@ class ZarbahaScraper:
         last_text = element.text
         elapsed = 0
 
-        while elapsed < self.TIME_OUT:
-            time.sleep(self.INTERVAL)
-            elapsed += self.INTERVAL
+        while elapsed < self.timeout:
+            time.sleep(self.interval)
+            elapsed += self.interval
 
             current_text = element.text
 

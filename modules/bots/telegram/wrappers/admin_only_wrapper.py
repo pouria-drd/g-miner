@@ -1,13 +1,12 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from modules.configs import Settings
 
-from modules.configs import get_logger
+from modules.configs import get_settings, get_logger
 
 
 logger = get_logger("TelegramBot")
-env_config = Settings()
-ADMIN_CHAT_IDS = env_config.ADMIN_CHAT_IDS
+settings = get_settings()
+ADMIN_CHAT_IDS = settings["ADMIN_CHAT_IDS"]
 
 
 def admin_only(func):
