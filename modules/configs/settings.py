@@ -44,9 +44,9 @@ def get_settings() -> dict:
     RESULT_BACKEND = os.getenv("RESULT_BACKEND", "redis://localhost:6379/1")
 
     # Database Settings
-    DB_FOLDER = BASE_DIR / "db"
-    DB_FOLDER.mkdir(exist_ok=True)
-    DB_FILE: Path = DB_FOLDER / "gold_prices.json"
+    GOLD_DB_FOLDER = BASE_DIR / "db"
+    GOLD_DB_FOLDER.mkdir(exist_ok=True)
+    GOLD_DB_FILE: Path = GOLD_DB_FOLDER / "gold_prices.json"
 
     return {
         "PROJECT_NAME": PROJECT_NAME,
@@ -71,6 +71,6 @@ def get_settings() -> dict:
         "BROKER_URL": BROKER_URL,
         "RESULT_BACKEND": RESULT_BACKEND,
         # Database Settings
-        "DB_FOLDER": DB_FOLDER,
-        "DB_FILE": DB_FILE,
+        "GOLD_DB_FOLDER": GOLD_DB_FOLDER,
+        "GOLD_DB_FILE": GOLD_DB_FILE,
     }

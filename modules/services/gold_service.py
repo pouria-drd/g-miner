@@ -1,12 +1,12 @@
 import jdatetime
 from datetime import datetime
 
-from modules.repositories import PriceRepository
+from modules.repositories import GoldRepository
 from modules.configs import get_settings, get_logger
 from modules.scrapers.zarbaha_scraper import ZarbahaScraper
 
 
-class PriceService:
+class GoldService:
     """
     Service layer for business logic around gold prices.
     """
@@ -17,19 +17,25 @@ class PriceService:
         self.logger = get_logger("PriceService")
         self.settings = get_settings()
 
-        self.repo = PriceRepository(db_file=self.settings["DB_FILE"])
+        self.repo = GoldRepository()
         self.scraper = ZarbahaScraper(headless=True)
 
         self.SCHEDULER_TIME_ZONE = self.settings["SCHEDULER_TIME_ZONE"]
 
+    def get_latest_price(self):
+        """Retrieve the most recent stored price."""
+        self.fetch_data()
+        return self.repo.get_latest()
+
     def fetch_data(self):
-        """
-        Fetch price from Zarbaha and store it in the DB.
-        Returns the price dict.
-        """
+        """Fetch price from Zarbaha and store it."""
         try:
             prices = self.scraper.scrape()
-            if prices["estimate_price_toman"] is not None:
+            # Extract price data
+            estimate_price = prices.get("estimate_price_toman")
+            # check validity
+            if estimate_price is not None and estimate_price > 0:
+                # Create new entry in repository
                 self.repo.create(prices)
                 self.logger.info(f"Price stored: {prices}")
             else:
@@ -42,10 +48,6 @@ class PriceService:
 
         # finally:
         #     self.scraper.close()
-
-    def get_latest_price(self):
-        """Retrieve the most recent stored price."""
-        return self.repo.get_latest()
 
     def format_message(self, price_data: dict, previous: dict | None = None) -> str:
         """Format the price data into an HTML message for Telegram.

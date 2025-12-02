@@ -3,13 +3,13 @@ from datetime import datetime
 from celery import shared_task
 
 from modules.bots import TelegramBot
-from modules.services import PriceService
+from modules.services import GoldService
 from modules.configs import get_settings, get_logger
 
 
 @shared_task(bind=True, max_retries=3)
 def fetch_and_send(self):
-    logger = get_logger("CeleryGoldPriceTask")
+    logger = get_logger("GoldTask")
     settings = get_settings()
 
     SCHEDULER_TIME_ZONE = settings["SCHEDULER_TIME_ZONE"]
@@ -25,7 +25,7 @@ def fetch_and_send(self):
         return "Skipped (outside working hours)"
 
     try:
-        price_service = PriceService()
+        price_service = GoldService()
         telegram = TelegramBot(
             token=settings["TELEGRAM_TOKEN"],
             proxy=settings["TELEGRAM_PROXY_URL"],

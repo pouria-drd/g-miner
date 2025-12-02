@@ -3,7 +3,7 @@ import asyncio
 from typing import Optional
 
 from modules.bots import TelegramBot
-from modules.schedulers import PriceScheduler
+from modules.schedulers import GoldScheduler
 from modules.configs import get_settings, get_logger
 
 
@@ -12,13 +12,20 @@ class GMinerApp:
 
     def __init__(self):
         self.logger = get_logger("GMiner")
-        self.settings = get_settings()
+        self._settings = None
 
         self.bot_task: Optional[asyncio.Task] = None
 
         self.telegram_bot: Optional[TelegramBot] = None
 
-        self.scheduler: Optional[PriceScheduler] = None
+        self.scheduler: Optional[GoldScheduler] = None
+
+    @property
+    def settings(self):
+        """Lazy load settings to reduce startup memory."""
+        if self._settings is None:
+            self._settings = get_settings()
+        return self._settings
 
     def initialize_bot(self):
         """Initialize Telegram bot instance."""
@@ -37,19 +44,19 @@ class GMinerApp:
         self.logger.info("Telegram Bot initialized.")
 
     def initialize_scheduler(self):
-        """Initialize PriceScheduler instance."""
+        """Initialize Scheduler instance."""
         if not self.telegram_bot:
             raise RuntimeError("Bot must be initialized before scheduler.")
 
-        self.logger.info("Initializing Price Scheduler...")
+        self.logger.info("Initializing Scheduler...")
 
         if not self.settings["TELEGRAM_CHANNEL_ID"]:
             self.logger.error("TELEGRAM_CHANNEL_ID is not set in .env file.")
             raise ValueError("TELEGRAM_CHANNEL_ID is not set in .env file.")
 
-        self.scheduler = PriceScheduler(telegram_bot=self.telegram_bot)
+        self.scheduler = GoldScheduler(telegram_bot=self.telegram_bot)
 
-        self.logger.info("Price Scheduler initialized.")
+        self.logger.info("Scheduler initialized.")
 
     async def run(self):
         """Run bot polling and scheduler concurrently."""
@@ -112,7 +119,8 @@ class GMinerApp:
     def reload_config(self):
         """Reload environment config at runtime."""
         self.logger.info("Reloading configuration...")
-        self.settings = get_settings()
+        self._settings = None
+        self._settings = get_settings()
         self.logger.info("Configuration reloaded.")
 
     async def restart(self):

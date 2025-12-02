@@ -4,13 +4,13 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from modules.bots import TelegramBot
-from modules.services import PriceService
+from modules.services import GoldService
 from modules.configs import get_settings, get_logger
 
 
-class PriceScheduler:
+class GoldScheduler:
     """
-    Scheduler service to fetch prices and send to Telegram channel.
+    Scheduler service to fetch gold prices and send to Telegram channel.
     Runs every x minutes between start and end times of given timezone for a single day.
     """
 
@@ -22,14 +22,29 @@ class PriceScheduler:
 
         self.SCHEDULER_TIME_ZONE = self.settings["SCHEDULER_TIME_ZONE"]
 
-        self.price_service = PriceService()
-
-        self.scheduler = AsyncIOScheduler(timezone=self.SCHEDULER_TIME_ZONE)
+        # Lazy initialization of PriceService
+        self._gold_service = None
 
         self.END_TIME = self.settings["SCHEDULER_END_TIME"]
         self.START_TIME = self.settings["SCHEDULER_START_TIME"]
 
         self.INTERVAL_MINUTES = int(self.settings["SCHEDULER_INTERVAL_MINUTES"])
+
+        self.scheduler = AsyncIOScheduler(
+            timezone=self.SCHEDULER_TIME_ZONE,
+            job_defaults={
+                "coalesce": True,  # Prevent job pile-up
+                "max_instances": 1,  # Only one instance at a time
+                "misfire_grace_time": 30,  # Skip jobs that are >30s late
+            },
+        )
+
+    @property
+    def gold_service(self):
+        """Lazy initialize PriceService to save memory."""
+        if self._gold_service is None:
+            self._gold_service = GoldService()
+        return self._gold_service
 
     async def fetch_and_send(self):
         """
@@ -41,7 +56,7 @@ class PriceScheduler:
             now = datetime.now(self.SCHEDULER_TIME_ZONE)
             current_time = now.time()
 
-            # Check if within working hours
+            # Check working hours
             if not (self.START_TIME <= current_time <= self.END_TIME):
                 self.logger.debug(
                     f"Outside working hours. Current time: {current_time}"
@@ -50,43 +65,33 @@ class PriceScheduler:
 
             self.logger.info(f"Fetching price at {now.strftime('%Y-%m-%d %H:%M:%S')}")
 
-            # Fetch data (runs synchronously)
-            prices = await asyncio.to_thread(self.price_service.fetch_data)
+            # Get the latest stored price
+            latest = self.gold_service.get_latest_price()
 
-            if prices and prices.get("estimate_price_toman"):
-                # Get the latest stored price
-                latest = await asyncio.to_thread(self.price_service.get_latest_price)
+            if latest:
+                # Try to get the previous stored price (one before latest)
+                try:
+                    # repository stores entries in a file; get all and pick second-last
+                    all_entries = self.gold_service.repo.get_all()
+                    prev = all_entries[-2] if len(all_entries) >= 2 else None
+                except Exception:
+                    prev = None
 
-                if latest:
-                    # Try to get the previous stored price (one before latest)
-                    try:
-                        # repository stores entries in a file; get all and pick second-last
-                        all_entries = await asyncio.to_thread(
-                            self.price_service.repo.get_all
-                        )
-                        prev = all_entries[-2] if len(all_entries) >= 2 else None
-                    except Exception:
-                        prev = None
+                # Format message with direction icon based on estimate_price_toman
+                message = self.gold_service.format_message(latest, previous=prev)
 
-                    # Format message with direction icon based on estimate_price_toman
-                    message = self.price_service.format_message(latest, previous=prev)
+                channel_id = self.settings["TELEGRAM_CHANNEL_ID"]
+                if not channel_id:
+                    self.logger.error("TELEGRAM_CHANNEL_ID is not set in .env file.")
+                    raise ValueError("TELEGRAM_CHANNEL_ID is not set in .env file.")
+                # Send to channel
+                await self.telegram_bot.send_channel_message(
+                    channel_id=channel_id, text=message
+                )
 
-                    channel_id = self.settings["TELEGRAM_CHANNEL_ID"]
-                    if not channel_id:
-                        self.logger.error(
-                            "TELEGRAM_CHANNEL_ID is not set in .env file."
-                        )
-                        raise ValueError("TELEGRAM_CHANNEL_ID is not set in .env file.")
-                    # Send to channel
-                    await self.telegram_bot.send_channel_message(
-                        channel_id=channel_id, text=message
-                    )
-
-                    self.logger.info(f"Price update sent to channel: {channel_id}")
-                else:
-                    self.logger.warning("No latest price found in database")
+                self.logger.info(f"Price update sent to channel: {channel_id}")
             else:
-                self.logger.warning("Failed to fetch valid price data")
+                self.logger.warning("No latest price found in database")
 
         except Exception as e:
             self.logger.error(f"Error in fetch_and_send: {e}", exc_info=True)
@@ -109,7 +114,8 @@ class PriceScheduler:
             )
 
             self.logger.info(
-                f"Scheduler started. Will fetch prices every {self.INTERVAL_MINUTES} minutes (between {self.START_TIME} and {self.END_TIME} time) {self.SCHEDULER_TIME_ZONE}"
+                f"Scheduler started. Will fetch gold prices every {self.INTERVAL_MINUTES} minutes "
+                f"(between {self.START_TIME} and {self.END_TIME}) {self.SCHEDULER_TIME_ZONE}"
             )
             self.scheduler.start()
 

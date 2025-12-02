@@ -1,1 +1,1 @@
-from .gold_price_tasks import fetch_and_send
+from .gold_tasks import fetch_and_send

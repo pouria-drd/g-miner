@@ -29,8 +29,8 @@ celery_app.autodiscover_tasks(
 )
 
 celery_app.conf.beat_schedule = {
-    "run-fetch-gold-price-every-x-minutes": {
-        "task": "modules.tasks.gold_price_tasks.fetch_and_send",
+    f"run-gold-every-{SCHEDULER_INTERVAL_MINUTES}-minutes": {
+        "task": "modules.tasks.gold_tasks.fetch_and_send",
         "schedule": crontab(minute=f"*/{SCHEDULER_INTERVAL_MINUTES}"),
     },
 }

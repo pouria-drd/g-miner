@@ -1,1 +1,1 @@
-from .price_scheduler import PriceScheduler
+from .gold_scheduler import GoldScheduler
