@@ -38,7 +38,7 @@ class GMinerApp:
         self.telegram_bot = TelegramBot(
             token=self.settings["TELEGRAM_TOKEN"],
             proxy=self.settings["TELEGRAM_PROXY_URL"],
-            allowed_ids=self.settings["ADMIN_CHAT_IDS"],
+            admin_ids=self.settings["ADMIN_CHAT_IDS"],
         )
 
         self.logger.info("Telegram Bot initialized.")

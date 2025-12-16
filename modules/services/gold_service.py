@@ -1,6 +1,7 @@
 import jdatetime
 from datetime import datetime
 
+from modules.bots import TelegramBot
 from modules.repositories import GoldRepository
 from modules.configs import get_settings, get_logger
 from modules.scrapers.zarbaha_scraper import ZarbahaScraper
@@ -13,21 +14,59 @@ class GoldService:
 
     MESAQAL_TO_GRAM = 4.331802  # every mesqal is how many grams?
 
-    def __init__(self):
-        self.logger = get_logger("PriceService")
+    def __init__(self, telegram_bot: TelegramBot):
+        self.logger = get_logger("GoldService")
         self.settings = get_settings()
 
         self.repo = GoldRepository()
+        self.telegram_bot = telegram_bot
         self.scraper = ZarbahaScraper(headless=True)
 
         self.SCHEDULER_TIME_ZONE = self.settings["SCHEDULER_TIME_ZONE"]
 
-    def get_latest_price(self):
-        """Retrieve the most recent stored price."""
-        self.fetch_data()
-        return self.repo.get_latest()
+    async def run(self):
+        """Run the price fetching task."""
+        try:
+            # Get the latest stored price
+            success, latest = self.__get_latest_price()
 
-    def fetch_data(self):
+            if not success:
+                self.logger.warning("Failed to fetch valid price.")
+                await self.telegram_bot.notify_admins(
+                    "❌ Failed to fetch valid price! using previous price instead..."
+                )
+
+            if latest:
+                # Try to get the previous stored price (one before latest)
+                try:
+                    # repository stores entries in a file; get all and pick second-last
+                    all_entries = self.repo.get_all()
+                    prev = all_entries[-2] if len(all_entries) >= 2 else None
+                except Exception:
+                    prev = None
+
+                # Format message with direction icon based on estimate_price_toman
+                message = self.__format_message(latest, previous=prev)
+
+                # Send to channel
+                channel_id = self.settings["TELEGRAM_CHANNEL_ID"]
+                await self.telegram_bot.send_channel_message(
+                    channel_id=channel_id,
+                    text=message,
+                )
+
+                self.logger.info(f"Price update sent to channel: {channel_id}")
+
+        except Exception as e:
+            self.logger.error(f"Error in while fetching price: {e}", exc_info=True)
+
+    def __get_latest_price(self):
+        """Retrieve the most recent stored price."""
+        success = self.__fetch_data()
+        prices = self.repo.get_latest()
+        return (success, prices)
+
+    def __fetch_data(self):
         """Fetch price from Zarbaha and store it."""
         try:
             prices = self.scraper.scrape()
@@ -38,18 +77,18 @@ class GoldService:
                 # Create new entry in repository
                 self.repo.create(prices)
                 self.logger.info(f"Price stored: {prices}")
-            else:
-                self.logger.warning("Failed to fetch valid price.")
-            return prices
+                return True
+
+            return False
 
         except Exception as e:
-            self.logger.error(f"Error in fetch_and_store: {e}")
-            return None
+            self.logger.error(f"Error in fetching price: {e}")
+            return False
 
         # finally:
         #     self.scraper.close()
 
-    def format_message(self, price_data: dict, previous: dict | None = None) -> str:
+    def __format_message(self, price_data: dict, previous: dict | None = None) -> str:
         """Format the price data into an HTML message for Telegram.
 
         Shows an icon at the top: green (up) if estimate rose since previous entry,

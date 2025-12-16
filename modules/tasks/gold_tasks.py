@@ -29,7 +29,7 @@ def fetch_and_send(self):
         telegram = TelegramBot(
             token=settings["TELEGRAM_TOKEN"],
             proxy=settings["TELEGRAM_PROXY_URL"],
-            allowed_ids=[settings["ADMIN_CHAT_IDS"]],
+            admin_ids=[settings["ADMIN_CHAT_IDS"]],
         )
 
         prices = price_service.fetch_data()

@@ -2,19 +2,21 @@ import asyncio
 from typing import Optional
 from telegram.ext import Application
 
-from modules.configs import get_logger
 from .handlers import GeneralHandlers
+from modules.configs import get_logger
 
 
 class TelegramBot:
-    def __init__(self, token: str, proxy: Optional[str] = None, allowed_ids=None):
+    def __init__(
+        self, token: str, proxy: Optional[str] = None, admin_ids: Optional[set] = None
+    ):
         # 1. Setup Logger
         self.logger = get_logger("TelegramBot")
 
         # 2. Load Configs
         self.token = token
         self.proxy = proxy
-        self.allowed_ids = allowed_ids or set()
+        self.admin_ids = admin_ids or set()
 
         # 3. Build Application
         builder = self.build()
@@ -94,6 +96,28 @@ class TelegramBot:
             self.logger.error(f"Error building Telegram Bot: {e}")
             raise e
 
+    async def notify_admins(self, text: str, parse_mode: str = "HTML"):
+        """
+        Sends a message to all admin chats.
+
+        Args:
+            text (str): The message content to send.
+        """
+        try:
+            # 1. Access the Bot object from the Application
+            bot = self.app.bot
+
+            # 2. Call the send_message method
+            for chat_id in self.admin_ids:
+                chat = await bot.get_chat(chat_id)
+                if chat:
+                    await chat.send_message(text=text, parse_mode=parse_mode)
+
+            self.logger.info(f"Successfully sent message to all admins")
+
+        except Exception as e:
+            self.logger.error(f"Error sending message to all admins: {e}")
+
     async def send_channel_message(
         self, channel_id: str, text: str, parse_mode: str = "HTML"
     ):
@@ -115,4 +139,3 @@ class TelegramBot:
 
         except Exception as e:
             self.logger.error(f"Error sending message to channel {channel_id}: {e}")
-            raise e

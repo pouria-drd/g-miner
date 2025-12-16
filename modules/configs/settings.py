@@ -26,9 +26,9 @@ def get_settings() -> dict:
     SCHEDULER_TIME_ZONE = ZoneInfo(os.getenv("SCHEDULER_TIME_ZONE", "Asia/Tehran"))
 
     # Telegram Settings
-    ADMIN_CHAT_IDS = [
+    ADMIN_CHAT_IDS = set(
         x.strip() for x in os.getenv("ADMIN_CHAT_IDS", "").split(",") if x.strip()
-    ]
+    )
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
     TELEGRAM_CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL_ID")
     TELEGRAM_PROXY_URL = os.getenv("TELEGRAM_PROXY_URL")
