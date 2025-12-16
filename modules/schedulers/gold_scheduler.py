@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
