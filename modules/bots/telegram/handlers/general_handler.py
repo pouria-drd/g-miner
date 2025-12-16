@@ -82,16 +82,17 @@ class GeneralHandlers:
 
         settings = get_settings()
 
-        status_icon = "✅" if settings["SCHEDULER_ENABLED"] else "⏸️"
+        status_icon = "🟢" if settings["SCHEDULER_ENABLED"] else "🔴"
 
         message = (
-            f"{status_icon} <b>System Status</b>\n\n"
-            f"<b>Scheduler:</b> {'Enabled' if settings['SCHEDULER_ENABLED'] else 'Disabled'}\n"
+            f"Scheduler:\n"
+            f"<b>Scheduler:</b> {'Enabled' if settings['SCHEDULER_ENABLED'] else 'Disabled'} {status_icon}\n"
             f"<b>Interval:</b> {settings['SCHEDULER_INTERVAL_MINUTES']} minutes\n"
             f"<b>Timezone:</b> {settings['SCHEDULER_TIME_ZONE']}\n"
-            f"<b>Active Window:</b> {settings['SCHEDULER_START_TIME']} - {settings['SCHEDULER_END_TIME']}\n\n"
-            f"<b>Channel:</b> {settings['TELEGRAM_CHANNEL_ID']}\n"
-            f"<b>Admins:</b> {len(settings['ADMIN_CHAT_IDS'])}\n\n"
+            f"<b>Working Hours:</b> {settings['SCHEDULER_START_TIME']} - {settings['SCHEDULER_END_TIME']}\n\n"
+            f"<b>Telegram:</b>\n"
+            f"👥 <b>Admins:</b> {len(settings['ADMIN_CHAT_IDS'])}\n"
+            f"📡 <b>Channel:</b> {settings['TELEGRAM_CHANNEL_ID']}\n\n"
             f"Use /settings to modify configuration."
         )
 
