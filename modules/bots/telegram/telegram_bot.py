@@ -113,10 +113,10 @@ class TelegramBot:
                 if chat:
                     await chat.send_message(text=text, parse_mode=parse_mode)
 
-            self.logger.info(f"Successfully sent message to all admins")
+            self.logger.info(f"Successfully notified admins")
 
         except Exception as e:
-            self.logger.error(f"Error sending message to all admins: {e}")
+            self.logger.error(f"Error notifying admins: {e}")
 
     async def send_channel_message(
         self, channel_id: str, text: str, parse_mode: str = "HTML"
